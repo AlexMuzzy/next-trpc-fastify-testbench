@@ -14,3 +14,13 @@ const todos: Todo[] = [
 export const listTodos = async () => {
     return todos;
 }
+
+export const createTodo = async (title: string): Promise<Todo> => {
+    const todo: Todo = {
+        id: String(Date.now()),
+        title,
+        completed: false,
+    };
+    todos.push(todo);
+    return todo;
+}

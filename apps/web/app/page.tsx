@@ -1,10 +1,19 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 import { trpc } from "@fsapp/trpc/client";
 
 export default function Home() {
   const health = trpc.healthz.useQuery();
   const todos = trpc.todos.list.useQuery();
+  const utils = trpc.useUtils();
+  const [newTitle, setNewTitle] = useState("");
+  const createTodo = trpc.todos.create.useMutation({
+    onSuccess: async () => {
+      setNewTitle("");
+      await utils.todos.list.invalidate();
+    },
+  });
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -27,8 +36,31 @@ export default function Home() {
           <li className="tracking-[-.01em]">
             Save and see your changes instantly.
           </li>
-          <li className="tracking-[-.01em]">
-            tRPC health: {health.data ?? "loading..."}
+          <li className="flex items-center gap-2">
+            <span>tRPC health:</span>
+            <span className="inline-flex items-center gap-2">
+              <span
+                className={`inline-block h-3 w-3 rounded-full ${health.isLoading
+                  ? "bg-yellow-400 animate-pulse"
+                  : health.isError
+                    ? "bg-red-500"
+                    : health.data === "ok"
+                      ? "bg-green-500"
+                      : "bg-gray-400"
+                  }`}
+                aria-hidden
+                title={
+                  health.isLoading
+                    ? "loading"
+                    : health.isError
+                      ? "error"
+                      : health.data ?? "unknown"
+                }
+              />
+              <span className="sr-only">
+                {health.isLoading ? "loading" : health.isError ? "error" : health.data}
+              </span>
+            </span>
           </li>
         </ol>
 
@@ -60,7 +92,32 @@ export default function Home() {
         <section className="w-full max-w-xl mt-6">
           <h2 className="text-lg font-semibold mb-3">Todos</h2>
           <div className="rounded-lg border border-black/10 dark:border-white/15 bg-white dark:bg-[#111] p-4">
-            {!todos.data && <div className="text-sm text-black/60 dark:text-white/60">Loading…</div>}
+            <form
+              className="flex gap-2 mb-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newTitle.trim() || createTodo.isPending) return;
+                createTodo.mutate({ title: newTitle.trim() });
+              }}
+            >
+              <input
+                type="text"
+                placeholder="New todo title"
+                className="flex-1 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="rounded-md bg-black text-white dark:bg-white dark:text-black px-3 py-2 text-sm disabled:opacity-50"
+                disabled={!newTitle.trim() || createTodo.isPending}
+              >
+                {createTodo.isPending ? "Adding…" : "Add"}
+              </button>
+            </form>
+            {!todos.data && <div className="flex justify-center items-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900 dark:border-white" />
+            </div>}
             {todos.data && (
               <ul className="space-y-2">
                 {todos.data.map((t) => (
