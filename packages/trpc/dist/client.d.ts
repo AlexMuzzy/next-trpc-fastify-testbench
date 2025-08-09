@@ -1,0 +1,4 @@
+export declare const trpcReact: "The property 'useContext' in your router collides with a built-in method, rename this router or procedure on your backend." | "The property 'useUtils' in your router collides with a built-in method, rename this router or procedure on your backend." | "The property 'Provider' in your router collides with a built-in method, rename this router or procedure on your backend." | "The property 'createClient' in your router collides with a built-in method, rename this router or procedure on your backend." | "The property 'useQueries' in your router collides with a built-in method, rename this router or procedure on your backend." | "The property 'useSuspenseQueries' in your router collides with a built-in method, rename this router or procedure on your backend.";
+export declare const createClient: (opts?: {
+    apiUrl?: string;
+}) => any;

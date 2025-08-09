@@ -1,0 +1,10 @@
+{
+    "name": "@fsapp/workspace",
+    "private": true,
+    "version": "0.1.0",
+    "scripts": {
+        "dev": "pnpm -r --parallel dev",
+        "build": "pnpm -r build",
+        "start": "pnpm -r --parallel start"
+    }
+}
