@@ -1,14 +1,15 @@
 import { createTRPCReact } from '@trpc/react-query';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import type { AppRouter } from '@fsapp/server/router';
+import superjson from 'superjson';
 
-export const trpcReact = createTRPCReact<AppRouter>({});
+export const trpc = createTRPCReact<AppRouter>({});
 
 export const createClient = (opts?: { apiUrl?: string }) =>
-    trpcReact.createClient({
+    trpc.createClient({
         links: [
             loggerLink({ enabled: () => typeof window !== 'undefined' }),
-            httpBatchLink({ url: `${opts?.apiUrl ?? 'http://localhost:4000'}/trpc` }),
+            httpBatchLink({ url: `${opts?.apiUrl ?? 'http://localhost:4000'}/trpc`, transformer: superjson }),
         ],
     });
 

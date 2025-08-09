@@ -1,6 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -8,14 +13,35 @@
     "noEmit": true,
     "allowJs": true,
     "resolveJsonModule": true,
-    "types": ["node"],
-    "plugins": [{ "name": "next" }],
+    "types": [
+      "node"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@fsapp/trpc": ["../../packages/trpc/src"],
-      "@fsapp/config": ["../../packages/config/src"],
-      "@fsapp/server": ["../server/src"],
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@fsapp/trpc": [
+        "../../packages/trpc/src"
+      ],
+      "@fsapp/trpc/*": [
+        "../../packages/trpc/src/*"
+      ],
+      "@fsapp/config": [
+        "../../packages/config/src"
+      ],
+      "@fsapp/server": [
+        "../../apps/server/src"
+      ],
+      "@fsapp/server/*": [
+        "../../apps/server/src/*"
+      ]
+    },
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
@@ -23,5 +49,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

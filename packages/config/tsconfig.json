@@ -6,18 +6,13 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "target": "ES2022",
-    "lib": ["esnext", "dom"],
     "baseUrl": ".",
     "paths": {
-      "@fsapp/trpc": ["./src"],
-      "@fsapp/trpc/*": ["./src/*"],
-      "@fsapp/server": ["../../apps/server/src"],
-      "@fsapp/server/*": ["../../apps/server/src/*"],
-      "@fsapp/config": ["../../packages/config/src"]
+      "@fsapp/config": ["./src"],
+      "@fsapp/config/*": ["./src/*"]
     }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
-
 

@@ -1,23 +1,22 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "dist",
+    "rootDir": "src",
     "noEmit": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "baseUrl": "..",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["../*"],
-      "@fsapp/trpc": ["../../packages/trpc/src"],
-      "@fsapp/config": ["../../packages/config/src"],
       "@fsapp/server": ["./src"],
       "@fsapp/server/*": ["./src/*"],
-      "@fsapp/web/*": ["../web/*"]
+      "@fsapp/trpc": ["../../packages/trpc/src"],
+      "@fsapp/config": ["../../packages/config/src"]
     }
   },
   "include": ["src/**/*.ts"],

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { trpc } from "@/app/providers";
+import { trpc } from "@fsapp/trpc/client";
 
 export default function Home() {
   const health = trpc.healthz.useQuery();

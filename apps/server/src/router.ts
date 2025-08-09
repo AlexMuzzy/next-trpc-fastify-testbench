@@ -1,12 +1,15 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
-import { listTodos } from './services/todos';
+import superjson from 'superjson';
+import { listTodos } from './services/todos.js';
 
 export type RequestContext = {
     userId: string | null;
 };
 
-const t = initTRPC.context<RequestContext>().create();
+const t = initTRPC.context<RequestContext>().create({
+    transformer: superjson,
+});
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
