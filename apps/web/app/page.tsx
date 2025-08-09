@@ -14,6 +14,11 @@ export default function Home() {
       await utils.todos.list.invalidate();
     },
   });
+  const updateTodo = trpc.todos.update.useMutation({
+    onSuccess: async () => {
+      await utils.todos.list.invalidate();
+    },
+  });
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -129,6 +134,7 @@ export default function Home() {
                       <span
                         className={`inline-flex size-4 rounded-sm border ${t.completed ? "bg-green-500 border-green-600" : "bg-transparent border-black/20 dark:border-white/20"}`}
                         aria-hidden
+                        onClick={() => updateTodo.mutate({ id: t.id, title: t.title, completed: !t.completed })}
                       />
                       <span className={`text-sm ${t.completed ? "line-through text-black/40 dark:text-white/40" : ""}`}>
                         {t.title}

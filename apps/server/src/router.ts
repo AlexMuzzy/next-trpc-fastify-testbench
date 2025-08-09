@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import superjson from 'superjson';
-import { listTodos, createTodo } from './services/todos.js';
+import { listTodos, createTodo, updateTodo } from './services/todos.js';
 
 export type RequestContext = {
     userId: string | null;
@@ -21,6 +21,9 @@ export const appRouter = router({
         create: publicProcedure
             .input(z.object({ title: z.string().min(1).max(200) }))
             .mutation(async ({ input }) => createTodo(input.title)),
+        update: publicProcedure
+            .input(z.object({ id: z.string(), title: z.string().min(1).max(200), completed: z.boolean() }))
+            .mutation(async ({ input }) => updateTodo(input.id, input.title, input.completed)),
     }),
 });
 

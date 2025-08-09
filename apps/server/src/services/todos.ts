@@ -24,3 +24,11 @@ export const createTodo = async (title: string): Promise<Todo> => {
     todos.push(todo);
     return todo;
 }
+
+export const updateTodo = async (id: string, title: string, completed: boolean) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) throw new Error('Todo not found');
+    todo.title = title;
+    todo.completed = completed;
+    return todo;
+}
