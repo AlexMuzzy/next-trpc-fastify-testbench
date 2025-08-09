@@ -6,6 +6,7 @@ import { trpc } from "@fsapp/trpc/client";
 export default function Home() {
   const health = trpc.healthz.useQuery();
   const todos = trpc.todos.list.useQuery();
+  const users = trpc.users.list.useQuery();
   const utils = trpc.useUtils();
   const [newTitle, setNewTitle] = useState("");
   const createTodo = trpc.todos.create.useMutation({
@@ -19,6 +20,13 @@ export default function Home() {
       await utils.todos.list.invalidate();
     },
   });
+  const createUser = trpc.users.create.useMutation({
+    onSuccess: async () => {
+      await utils.users.list.invalidate();
+    },
+  });
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -147,6 +155,58 @@ export default function Home() {
                 ))}
               </ul>
             )}
+          </div>
+        </section>
+        <section className="w-full max-w-xl mt-6">
+          <h2 className="text-lg font-semibold mb-3">Users</h2>
+          <div className="rounded-lg border border-black/10 dark:border-white/15 bg-white dark:bg-[#111] p-4">
+            <form
+              className="flex gap-2 mb-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newName.trim() || !newEmail.trim() || createUser.isPending) return;
+                createUser.mutate({ name: newName.trim(), email: newEmail.trim() });
+              }}
+            >
+              <input
+                type="text"
+                placeholder="New user name"
+                className="flex-1 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <input
+                type="email"
+                placeholder="New user email"
+                className="flex-1 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="rounded-md bg-black text-white dark:bg-white dark:text-black px-3 py-2 text-sm disabled:opacity-50"
+                disabled={!newName.trim() || !newEmail.trim() || createUser.isPending}
+              >
+                {createUser.isPending ? "Adding…" : "Add"}
+              </button>
+            </form>
+            <ul className="space-y-2">
+              {users.data && users.data.map((u) => (
+                <li
+                  key={u.id}
+                  className="flex items-center justify-between rounded-md px-3 py-2 bg-black/[.03] dark:bg-white/[.04]"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-sm`}>
+                      {u.name}
+                    </span>
+                  </div>
+                  <span className="text-xs text-black/50 dark:text-white/50">
+                    {u.email}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>

@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import superjson from 'superjson';
 import { listTodos, createTodo, updateTodo } from './services/todos.js';
+import { getUsers, createUser } from './services/users.js';
 
 export type RequestContext = {
     userId: string | null;
@@ -24,6 +25,10 @@ export const appRouter = router({
         update: publicProcedure
             .input(z.object({ id: z.string(), title: z.string().min(1).max(200), completed: z.boolean() }))
             .mutation(async ({ input }) => updateTodo(input.id, input.title, input.completed)),
+    }),
+    users: router({
+        list: publicProcedure.query(async () => getUsers()),
+        create: publicProcedure.input(z.object({ name: z.string().min(1).max(200), email: z.string().email() })).mutation(async ({ input }) => createUser(input.name, input.email)),
     }),
 });
 
