@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import { appRouter } from './router.js';
+import { serverConfig } from '@fsapp/config';
 
 async function main() {
     const server = Fastify({ logger: true });
@@ -18,8 +19,8 @@ async function main() {
 
     server.get('/healthz', async () => ({ ok: true }));
 
-    const port = Number(process.env.PORT ?? 4000);
-    const host = process.env.HOST ?? '0.0.0.0';
+    const port = Number(serverConfig.PORT);
+    const host = serverConfig.HOST;
     await server.listen({ port, host });
     server.log.info(`API listening on http://${host}:${port}`);
 }
