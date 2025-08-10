@@ -1,17 +1,17 @@
 {
-    "name": "@fsapp/config",
-    "private": true,
-    "version": "0.1.0",
-    "type": "module",
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "dependencies": {
-        "dotenv": "^17.2.1",
-        "typescript": "^5.9.2",
-        "zod": "^3.23.8"
-    },
-    "devDependencies": {
-        "@types/node": "^24.2.1"
-    }
+  "name": "@fsapp/config",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "typescript": "^5.9.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1"
+  }
 }

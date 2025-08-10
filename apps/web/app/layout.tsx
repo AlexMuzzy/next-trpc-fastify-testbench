@@ -25,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Providers include tRPC + React Query */}
         {/* eslint-disable-next-line @next/next/no-head-element */}
         <Providers>{children}</Providers>

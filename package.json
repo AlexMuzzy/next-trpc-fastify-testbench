@@ -1,14 +1,20 @@
 {
-    "name": "@fsapp/workspace",
-    "private": true,
-    "version": "0.1.0",
-    "scripts": {
-        "dev": "pnpm -r --parallel dev",
-        "build": "pnpm -r build",
-        "start": "pnpm -r --parallel start",
-        "db:generate": "pnpm -r db:generate",
-        "db:migrate": "pnpm -r db:migrate",
-        "db:push": "pnpm -r db:push",
-        "db:studio": "pnpm -r db:studio"
-    }
+  "name": "@fsapp/workspace",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "start": "pnpm -r --parallel start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm -r db:generate",
+    "db:migrate": "pnpm -r db:migrate",
+    "db:push": "pnpm -r db:push",
+    "db:studio": "pnpm -r db:studio"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14"
+  }
 }
