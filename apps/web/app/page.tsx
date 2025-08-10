@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@fsapp/trpc/client";
 
 export default function Home() {
@@ -27,6 +27,21 @@ export default function Home() {
   });
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [hideCompleted, setHideCompleted] = useState(false);
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+
+  const filteredTodos = useMemo(() => {
+    const list = todos.data ?? [];
+    return hideCompleted ? list.filter((t) => !t.completed) : list;
+  }, [todos.data, hideCompleted]);
+
+  const completedCount = useMemo(
+    () => (todos.data ?? []).filter((t) => t.completed).length,
+    [todos.data],
+  );
+
+  const totalCount = todos.data?.length ?? 0;
   return (
     <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-sans sm:p-20">
       <main className="row-start-2 flex flex-col items-center gap-[32px] sm:items-start">
@@ -53,15 +68,14 @@ export default function Home() {
             <span>tRPC health:</span>
             <span className="inline-flex items-center gap-2">
               <span
-                className={`inline-block h-3 w-3 rounded-full ${
-                  health.isLoading
-                    ? "animate-pulse bg-yellow-400"
-                    : health.isError
-                      ? "bg-red-500"
-                      : health.data === "ok"
-                        ? "bg-green-500"
-                        : "bg-gray-400"
-                }`}
+                className={`inline-block h-3 w-3 rounded-full ${health.isLoading
+                  ? "animate-pulse bg-yellow-400"
+                  : health.isError
+                    ? "bg-red-500"
+                    : health.data === "ok"
+                      ? "bg-green-500"
+                      : "bg-gray-400"
+                  }`}
                 aria-hidden
                 title={
                   health.isLoading
@@ -110,6 +124,14 @@ export default function Home() {
         <section className="mt-6 w-full max-w-xl">
           <h2 className="mb-3 text-lg font-semibold">Todos</h2>
           <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-[#111]">
+            {(todos.error || createTodo.error || updateTodo.error) && (
+              <div className="mb-3 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">
+                {todos.error?.message ||
+                  createTodo.error?.message ||
+                  updateTodo.error?.message ||
+                  "Something went wrong."}
+              </div>
+            )}
             <form
               className="mb-4 flex gap-2"
               onSubmit={(e) => {
@@ -132,6 +154,13 @@ export default function Home() {
               >
                 {createTodo.isPending ? "Adding…" : "Add"}
               </button>
+              <button
+                type="button"
+                className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/15"
+                onClick={() => setHideCompleted((v) => !v)}
+              >
+                {hideCompleted ? "Show completed" : "Hide completed"}
+              </button>
             </form>
             {!todos.data && (
               <div className="flex h-full items-center justify-center">
@@ -139,42 +168,122 @@ export default function Home() {
               </div>
             )}
             {todos.data && (
-              <ul className="space-y-2">
-                {todos.data.map((t) => (
-                  <li
-                    key={t.id}
-                    className="flex items-center justify-between rounded-md bg-black/[.03] px-3 py-2 dark:bg-white/[.04]"
+              <div className="space-y-2">
+                <div className="mb-2 flex items-center justify-between text-xs text-black/60 dark:text-white/60">
+                  <span>
+                    {completedCount}/{totalCount} completed
+                  </span>
+                  <button
+                    className="rounded px-2 py-1 hover:bg-black/5 dark:hover:bg-white/5"
+                    onClick={() => setHideCompleted((v) => !v)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`inline-flex size-4 rounded-sm border ${t.completed ? "border-green-600 bg-green-500" : "border-black/20 bg-transparent dark:border-white/20"}`}
-                        aria-hidden
-                        onClick={() =>
-                          updateTodo.mutate({
-                            id: t.id,
-                            title: t.title,
-                            completed: !t.completed,
-                          })
-                        }
-                      />
-                      <span
-                        className={`text-sm ${t.completed ? "text-black/40 line-through dark:text-white/40" : ""}`}
+                    {hideCompleted ? "Show completed" : "Hide completed"}
+                  </button>
+                </div>
+                {filteredTodos.length === 0 ? (
+                  <div className="rounded-md border border-black/10 px-3 py-6 text-center text-sm dark:border-white/15">
+                    {hideCompleted
+                      ? "No pending todos. Enjoy your day!"
+                      : "No todos yet. Add your first one above."}
+                  </div>
+                ) : (
+                  <ul className="space-y-2">
+                    {filteredTodos.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-center justify-between rounded-md bg-black/[.03] px-3 py-2 dark:bg-white/[.04]"
                       >
-                        {t.title}
-                      </span>
-                    </div>
-                    <span className="text-xs text-black/50 dark:text-white/50">
-                      {t.completed ? "Done" : "Pending"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                        <div className="flex flex-1 items-center gap-3">
+                          <button
+                            type="button"
+                            className={`inline-flex size-4 rounded-sm border ${t.completed ? "border-green-600 bg-green-500" : "border-black/20 bg-transparent dark:border-white/20"}`}
+                            aria-label={t.completed ? "Mark as pending" : "Mark as done"}
+                            onClick={() =>
+                              updateTodo.mutate({
+                                id: t.id,
+                                title: t.title,
+                                completed: !t.completed,
+                              })
+                            }
+                          />
+                          {editingTodoId === t.id ? (
+                            <form
+                              className="flex w-full items-center gap-2"
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!editingTitle.trim()) return;
+                                updateTodo.mutate({
+                                  id: t.id,
+                                  title: editingTitle.trim(),
+                                  completed: t.completed,
+                                });
+                                setEditingTodoId(null);
+                                setEditingTitle("");
+                              }}
+                            >
+                              <input
+                                autoFocus
+                                className="w-full rounded-md border border-black/10 bg-transparent px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-black/20 dark:border-white/15 dark:focus:ring-white/20"
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Escape") {
+                                    setEditingTodoId(null);
+                                    setEditingTitle("");
+                                  }
+                                }}
+                              />
+                              <button
+                                type="submit"
+                                className="rounded-md bg-black px-2 py-1 text-xs text-white disabled:opacity-50 dark:bg-white dark:text-black"
+                                disabled={!editingTitle.trim() || updateTodo.isPending}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="rounded-md border border-black/10 px-2 py-1 text-xs dark:border-white/15"
+                                onClick={() => {
+                                  setEditingTodoId(null);
+                                  setEditingTitle("");
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </form>
+                          ) : (
+                            <button
+                              type="button"
+                              className={`flex-1 text-left text-sm ${t.completed ? "text-black/40 line-through dark:text-white/40" : ""}`}
+                              onClick={() => {
+                                setEditingTodoId(t.id);
+                                setEditingTitle(t.title);
+                              }}
+                              title="Click to edit"
+                            >
+                              {t.title}
+                            </button>
+                          )}
+                        </div>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          {t.completed ? "Done" : "Pending"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
         </section>
         <section className="mt-6 w-full max-w-xl">
           <h2 className="mb-3 text-lg font-semibold">Users</h2>
           <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-[#111]">
+            {(users.error || createUser.error) && (
+              <div className="mb-3 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">
+                {users.error?.message || createUser.error?.message || "Something went wrong."}
+              </div>
+            )}
             <form
               className="mb-4 flex gap-2"
               onSubmit={(e) => {
@@ -185,6 +294,8 @@ export default function Home() {
                   name: newName.trim(),
                   email: newEmail.trim(),
                 });
+                setNewName("");
+                setNewEmail("");
               }}
             >
               <input
@@ -211,22 +322,36 @@ export default function Home() {
                 {createUser.isPending ? "Adding…" : "Add"}
               </button>
             </form>
-            <ul className="space-y-2">
-              {users.data &&
-                users.data.map((u) => (
-                  <li
-                    key={u.id}
-                    className="flex items-center justify-between rounded-md bg-black/[.03] px-3 py-2 dark:bg-white/[.04]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`text-sm`}>{u.name}</span>
-                    </div>
-                    <span className="text-xs text-black/50 dark:text-white/50">
-                      {u.email}
-                    </span>
-                  </li>
-                ))}
-            </ul>
+            {!users.data && (
+              <div className="flex h-full items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-gray-900 dark:border-white" />
+              </div>
+            )}
+            {users.data && (
+              <>
+                {users.data.length === 0 ? (
+                  <div className="rounded-md border border-black/10 px-3 py-6 text-center text-sm dark:border-white/15">
+                    No users yet. Add one above.
+                  </div>
+                ) : (
+                  <ul className="space-y-2">
+                    {users.data.map((u) => (
+                      <li
+                        key={u.id}
+                        className="flex items-center justify-between rounded-md bg-black/[.03] px-3 py-2 dark:bg-white/[.04]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`text-sm`}>{u.name}</span>
+                        </div>
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          {u.email}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
           </div>
         </section>
       </main>
