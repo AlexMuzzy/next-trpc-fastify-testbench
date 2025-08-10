@@ -5,6 +5,10 @@
     "scripts": {
         "dev": "pnpm -r --parallel dev",
         "build": "pnpm -r build",
-        "start": "pnpm -r --parallel start"
+        "start": "pnpm -r --parallel start",
+        "db:generate": "pnpm -r db:generate",
+        "db:migrate": "pnpm -r db:migrate",
+        "db:push": "pnpm -r db:push",
+        "db:studio": "pnpm -r db:studio"
     }
 }

@@ -3,9 +3,10 @@ import { z } from 'zod';
 import superjson from 'superjson';
 import { listTodos, createTodo, updateTodo } from './services/todos.js';
 import { getUsers, createUser } from './services/users.js';
+import type { DrizzleClient } from './index.js';
 
 export type RequestContext = {
-    userId: string | null;
+    db: DrizzleClient;
 };
 
 const t = initTRPC.context<RequestContext>().create({
@@ -18,17 +19,17 @@ export const appRouter = router({
     healthz: publicProcedure.query(() => 'ok'),
     echo: publicProcedure.input(z.object({ message: z.string() })).mutation(({ input }) => ({ message: input.message })),
     todos: router({
-        list: publicProcedure.query(async () => listTodos()),
+        list: publicProcedure.query(async ({ ctx }) => listTodos(ctx.db)),
         create: publicProcedure
             .input(z.object({ title: z.string().min(1).max(200) }))
-            .mutation(async ({ input }) => createTodo(input.title)),
+            .mutation(async ({ input, ctx }) => createTodo(ctx.db, input.title)),
         update: publicProcedure
-            .input(z.object({ id: z.string(), title: z.string().min(1).max(200), completed: z.boolean() }))
-            .mutation(async ({ input }) => updateTodo(input.id, input.title, input.completed)),
+            .input(z.object({ id: z.number(), title: z.string().min(1).max(200), completed: z.boolean() }))
+            .mutation(async ({ input, ctx }) => updateTodo(ctx.db, input.id, input.title, input.completed)),
     }),
     users: router({
-        list: publicProcedure.query(async () => getUsers()),
-        create: publicProcedure.input(z.object({ name: z.string().min(1).max(200), email: z.string().email() })).mutation(async ({ input }) => createUser(input.name, input.email)),
+        list: publicProcedure.query(async ({ ctx }) => getUsers(ctx.db)),
+        create: publicProcedure.input(z.object({ name: z.string().min(1).max(200), email: z.string().email() })).mutation(async ({ input, ctx }) => createUser(ctx.db, input.name, input.email)),
     }),
 });
 

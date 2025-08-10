@@ -1,34 +1,15 @@
-export type Todo = {
-    id: string;
-    title: string;
-    completed: boolean;
-};
+import type { DrizzleClient } from '../index.js';
+import * as schema from '../db/schema.js';
+import { eq } from 'drizzle-orm';
 
-const todos: Todo[] = [
-    { id: '1', title: 'Set up monorepo', completed: true },
-    { id: '2', title: 'Wire Fastify + tRPC', completed: true },
-    { id: '3', title: 'Add Clerk + PostHog', completed: false },
-    { id: '4', title: 'Deploy to production', completed: false },
-]
+export const listTodos = async (db: DrizzleClient) => await db.query.todos.findMany()
 
-export const listTodos = async () => {
-    return todos;
-}
-
-export const createTodo = async (title: string): Promise<Todo> => {
-    const todo: Todo = {
-        id: String(Date.now()),
-        title,
-        completed: false,
-    };
-    todos.push(todo);
+export const createTodo = async (db: DrizzleClient, title: string) => {
+    const [todo] = await db.insert(schema.todos).values({ title, completed: false }).returning();
     return todo;
 }
 
-export const updateTodo = async (id: string, title: string, completed: boolean) => {
-    const todo = todos.find((t) => t.id === id);
-    if (!todo) throw new Error('Todo not found');
-    todo.title = title;
-    todo.completed = completed;
+export const updateTodo = async (db: DrizzleClient, id: number, title: string, completed: boolean) => {
+    const [todo] = await db.update(schema.todos).set({ title, completed }).where(eq(schema.todos.id, id)).returning();
     return todo;
 }
