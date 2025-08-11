@@ -20,6 +20,11 @@ export default function Home() {
       await utils.todos.list.invalidate();
     },
   });
+  const deleteTodo = trpc.todos.delete.useMutation({
+    onSuccess: async () => {
+      await utils.todos.list.invalidate();
+    },
+  });
   const createUser = trpc.users.create.useMutation({
     onSuccess: async () => {
       await utils.users.list.invalidate();
@@ -154,13 +159,6 @@ export default function Home() {
               >
                 {createTodo.isPending ? "Adding…" : "Add"}
               </button>
-              <button
-                type="button"
-                className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/15"
-                onClick={() => setHideCompleted((v) => !v)}
-              >
-                {hideCompleted ? "Show completed" : "Hide completed"}
-              </button>
             </form>
             {!todos.data && (
               <div className="flex h-full items-center justify-center">
@@ -265,9 +263,16 @@ export default function Home() {
                             </button>
                           )}
                         </div>
-                        <span className="text-xs text-black/50 dark:text-white/50">
+                        <span className="text-xs text-black/50 dark:text-white/50 pr-2">
                           {t.completed ? "Done" : "Pending"}
                         </span>
+                        <button
+                          type="button"
+                          className="rounded-md bg-black px-2 py-1 text-xs text-white disabled:opacity-50 dark:bg-white dark:text-black"
+                          onClick={() => deleteTodo.mutate({ id: t.id })}
+                        >
+                          Delete
+                        </button>
                       </li>
                     ))}
                   </ul>

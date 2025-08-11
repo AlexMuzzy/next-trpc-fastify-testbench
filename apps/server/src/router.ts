@@ -1,7 +1,12 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
 import superjson from "superjson";
-import { listTodos, createTodo, updateTodo } from "./services/todos.js";
+import {
+  listTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+} from "./services/todos.js";
 import { getUsers, createUser } from "./services/users.js";
 import type { DrizzleClient } from "./index.js";
 
@@ -36,6 +41,9 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) =>
         updateTodo(ctx.db, input.id, input.title, input.completed),
       ),
+    delete: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => deleteTodo(ctx.db, input.id)),
   }),
   users: router({
     list: publicProcedure.query(async ({ ctx }) => getUsers(ctx.db)),
