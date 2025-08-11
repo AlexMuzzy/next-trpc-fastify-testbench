@@ -344,7 +344,7 @@ export default function Dashboard() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Activity className="h-8 w-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">The Sickest Ever Todo List You've Ever Seen</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Task Analytics Dashboard</h1>
               </div>
               <div className="flex items-center space-x-2">
                 <div className={`w-3 h-3 rounded-full ${health.isLoading ? 'bg-yellow-400 animate-pulse' : health.isError ? 'bg-red-500' : 'bg-green-500'}`} />
